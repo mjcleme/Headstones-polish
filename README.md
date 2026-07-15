@@ -1,2 +1,2 @@
 # Headstones-polish
-[Claude Notes](Notes.md)
+[Claude Notes](NOTES.md)
