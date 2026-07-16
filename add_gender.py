@@ -13,7 +13,7 @@ reliable signal. Non-person rows (no given/surname) get a blank Gender.
 import csv
 
 SRC = "Krakow_all.csv"
-ENC = "latin-1"
+ENC = "utf-8-sig"
 GIVEN = 1  # Given Name column
 
 MALE_A_EXCEPTIONS = {"barnaba", "bonawentura", "jarema", "kosma", "kuba", "saba"}
@@ -46,15 +46,21 @@ def gender(given):
 def main():
     rows = list(csv.reader(open(SRC, newline="", encoding=ENC)))
     header = rows[0]
-    if header[-1] != "Gender":
+    # locate the Gender column by name (create it at the end if absent)
+    if "Gender" in header:
+        GIDX = header.index("Gender")
+    else:
+        GIDX = len(header)
         header.append("Gender")
         for r in rows[1:]:
             r.append("")
 
     counts = {"Male": 0, "Female": 0, "": 0}
     for r in rows[1:]:
+        while len(r) <= GIDX:
+            r.append("")
         g = gender(r[GIVEN]) if is_person(r) else ""
-        r[-1] = g
+        r[GIDX] = g
         counts[g] = counts.get(g, 0) + 1
 
     with open(SRC, "w", newline="", encoding=ENC) as f:

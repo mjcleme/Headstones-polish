@@ -9,7 +9,7 @@ is reported so it can be reviewed.
 import csv, re, json, datetime
 
 SRC = "Krakow_all.csv"
-ENC = "latin-1"
+ENC = "utf-8-sig"
 CACHES = ["dates_cache.json", "output_supporting_cache.json", "supporting_cache.json"]
 
 MON_ABBR = {"jan": "January", "feb": "February", "mar": "March", "apr": "April",

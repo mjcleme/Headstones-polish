@@ -7,7 +7,7 @@ SRC = "Krakow_output.csv"
 CACHE = "output_supporting_cache.json"
 
 def main():
-    with open(SRC, newline="", encoding="utf-8") as f:
+    with open(SRC, newline="", encoding="utf-8-sig") as f:
         rows = list(csv.reader(f))
 
     cache = {}
@@ -56,7 +56,7 @@ def main():
             if b or d:
                 filled += 1
 
-    with open(SRC, "w", newline="", encoding="utf-8") as f:
+    with open(SRC, "w", newline="", encoding="utf-8-sig") as f:
         csv.writer(f).writerows(rows)
 
     print(f"Filled dates into {filled} rows. Failures: {len(fails)}", flush=True)

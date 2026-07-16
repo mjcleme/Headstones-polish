@@ -18,7 +18,7 @@ Prediction heuristic (Polish headstone conventions):
 import csv, re
 
 SRC = "Krakow_all.csv"
-ENC = "latin-1"
+ENC = "utf-8-sig"
 IDC, GIVEN, SUR, URL, BIRTH, GENDER = 0, 1, 2, 5, 6, 8
 MAX_YEAR_GAP = 15         # normal husband/wife birth-year window
 MAIDEN_YEAR_GAP = 25      # widened window when the wife has a maiden-name marker

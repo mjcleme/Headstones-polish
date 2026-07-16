@@ -10,7 +10,7 @@ import csv, json, os
 from collections import Counter
 
 SRC = "Krakow_all.csv"
-ENC = "latin-1"
+ENC = "utf-8-sig"
 URLC = 5  # Billiongraves Link column (after leading ID column)
 MANUAL = "manual_ids.json"  # fallback ids (keyed "Given|Surname") for person rows
                             # with no BillionGraves record number (random, stable)

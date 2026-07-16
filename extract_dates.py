@@ -48,7 +48,7 @@ def fetch(url):
     return None  # signal failure
 
 def main():
-    with open(SRC, newline="", encoding="utf-8") as f:
+    with open(SRC, newline="", encoding="utf-8-sig") as f:
         rows = list(csv.reader(f))
 
     cache = {}
@@ -86,7 +86,7 @@ def main():
         json.dump(cache, f)
 
     # write output with two extra columns
-    with open(OUT, "w", newline="", encoding="utf-8") as f:
+    with open(OUT, "w", newline="", encoding="utf-8-sig") as f:
         w = csv.writer(f)
         for row in rows:
             url = row[-1] if row else ""

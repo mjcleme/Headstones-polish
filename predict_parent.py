@@ -19,7 +19,7 @@ from predict_spouse import (root, has_maiden, birth_year, is_person, is_separato
                             GIVEN, SUR, BIRTH, GENDER)
 
 SRC = "Krakow_all.csv"
-ENC = "latin-1"
+ENC = "utf-8-sig"
 IDC, SPOUSE = 0, 9
 MIN_AGE, MAX_AGE = 16, 42
 

@@ -24,6 +24,8 @@ _Last updated: 2026-07-15_
 | `add_gender.py` | Appends the `Gender` column, inferred from the Polish given name. |
 | `predict_spouse.py` | Appends the `Spouse` column (predicted partner). |
 | `predict_parent.py` | Appends the `Mother` column (mother's ID for predicted children). |
+| `fix_names.py` | Repairs Polish letters the source lost as literal `?` in the Given Name / Surname columns, using the URL. |
+| `convert_to_utf8.py` | One-time: converted `Krakow_all.csv` from mixed byte encoding to clean UTF-8 with BOM. |
 | `manual_ids.json` | Random fallback IDs for the 7 person rows with no BillionGraves link. |
 | `*_cache.json` | Cached date lookups (see §9). |
 
@@ -196,15 +198,36 @@ can't be distinguished from a born-in daughter, so some mother-in-law links may 
 
 - **WAF:** `map.billiongraves.com` blocks plain `curl`. Bypass with a normal browser
   `User-Agent` (see `HEADERS` in the scripts); `requests` works.
-- **Encoding:** `Krakow_all.csv` is **ISO-8859-2 / Latin-2** (Polish), NOT UTF-8
-  (byte `0xf3` = ó). Read/write with `latin-1` for a lossless byte round-trip while only
-  touching ASCII fields. `Krakow_output.csv` is UTF-8. Some URLs in `Krakow_all.csv` are
-  UTF-8 bytes read under Latin-2 (`Michał`→`MichaÅ`), which is why cross-file joins use the
-  numeric record ID, not the URL text.
-- **Mangled names in reports** (e.g. `MichaÅ`, `W?adys?aw`, `JÃ³zef`) are display artifacts
-  of that encoding; the stored bytes are intact and round-trip correctly.
+- **Encoding — `Krakow_all.csv` is now clean UTF-8 with a BOM** (`convert_to_utf8.py`). All
+  helper scripts read/write it with `encoding="utf-8-sig"`. History: the source file was a
+  *mixed* encoding — Given Name/Surname columns held **UTF-8 bytes**, the Cemetary column was
+  single-byte (cp1250/latin, `0xf3`=ó), URLs were ASCII. Earlier scripts round-tripped it as
+  `latin-1` (lossless byte pass-through) while only touching ASCII columns. When a Polish name
+  displayed as `Ĺ‚` / `MichaÅ`, that was the UTF-8 name bytes shown under a cp1250/latin viewer
+  — a display mismatch, not corrupted data. `convert_to_utf8.py` decoded every cell to real
+  Unicode (UTF-8 first, cp1250 fallback for single-byte cells) and rewrote as `utf-8-sig`, so it
+  now opens correctly in Excel/Sheets/editors. `Krakow_output.csv` was already clean UTF-8 and
+  has been given the same **BOM** (its scripts `extract_dates.py` / `fill_output_supporting.py`
+  now use `utf-8-sig`).
+- Cross-file joins still use the numeric **record ID**, not URL text (URLs vary: some are
+  double percent-encoded, `%25C5%2582`).
 - **Excel/Sheets** may re-display readable dates in locale short format (`9/23/1886`) — that's
   the app auto-parsing, not the file. Import the date columns as **Text** to preserve them.
+- **All derived-column scripts locate their column by name** (not "append at end"), so they are
+  safe to re-run individually in any order without creating duplicate columns.
+- **Source name corruption + repair (`fix_names.py`).** The source data's Given Name/Surname
+  columns had lost many Polish letters as a literal `?` (0x3F) — e.g. `?uczak` for **Łuczak**,
+  `?urek` for **Żurek**, `Kury?owicz` for **Kuryłowicz** (68 person rows). This was
+  **pre-existing in the source**, not introduced by processing: the scripts only ever wrote the
+  ID/date/derived columns (never the name columns) and round-trip the file losslessly as
+  latin-1. The correct spelling survives in the Billiongraves URL as percent-encoded UTF-8
+  (`Zofia-%C5%81uczak`). `fix_names.py` decodes each affected row's URL name (handling
+  **double** percent-encoding like `%25C5%2582` on some headstone URLs) and substitutes the
+  recovered letter into each `?`, matching case. All 68 rows repaired (67 from the URL, 1 —
+  `Władisław Talaga`, whose URL has no name — fixed manually `?`→`ł`). Only the two name columns
+  changed; spouse/parent predictions re-run unchanged (514 couples / 159 children). (This ran
+  before the UTF-8 conversion; `convert_to_utf8.py` then normalized the whole file. `fix_names.py`
+  now reads/writes `utf-8-sig` and stores repaired letters as real Unicode.)
 
 ## 10. Caches & how to re-run
 
@@ -227,6 +250,7 @@ to its birth/death columns and dump `{url: [birth, death]}`.)
 cd "/Users/clement/Documents/claude/polishnames"
 python3 fill_all.py            # birth/death dates, rows 1..302
 python3 normalize_dates.py     # -> full month names + 4-digit years
+python3 fix_names.py           # repair '?' Polish letters in names from the URL
 python3 add_person_id.py       # ID column (BG record number + manual_ids.json)
 python3 add_gender.py          # Gender column
 python3 predict_spouse.py      # Spouse column

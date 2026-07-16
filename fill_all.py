@@ -5,7 +5,7 @@ from extract_supporting import fetch
 
 SRC = "Krakow_all.csv"
 CACHE = "supporting_cache.json"
-ENC = "latin-1"          # lossless round-trip for this file's bytes
+ENC = "utf-8-sig"          # lossless round-trip for this file's bytes
 MAX_ROW = 302            # process data rows 1..302 only
 URLC = 5                 # Billiongraves Link column index (after leading ID column)
 BI, DI = 6, 7            # Birth Date, Death Date column indexes
