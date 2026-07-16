@@ -13,13 +13,13 @@ Prediction heuristic (Polish headstone conventions):
   4. SAME GENERATION: husband/wife birth years within 15 years.
   When several candidates qualify, the closest birth year wins; a maiden-name
   marker (zd./parenthetical) strengthens a match and lets it stand when a birth
-  year is missing. Spouse cell = the predicted partner's "Given Surname".
+  year is missing. Spouse cell = the predicted partner's ID (its ID-column value).
 """
 import csv, re
 
 SRC = "Krakow_all.csv"
 ENC = "latin-1"
-GIVEN, SUR, URL, BIRTH, GENDER = 1, 2, 5, 6, 8
+IDC, GIVEN, SUR, URL, BIRTH, GENDER = 0, 1, 2, 5, 6, 8
 MAX_YEAR_GAP = 15         # normal husband/wife birth-year window
 MAIDEN_YEAR_GAP = 25      # widened window when the wife has a maiden-name marker
                           # (zd. / z domu / parenthetical) confirming she is married
@@ -80,13 +80,18 @@ def surname_match(male_sur, female_sur):
 def main():
     rows = list(csv.reader(open(SRC, newline="", encoding=ENC)))
     header = rows[0]
-    if header[-1] != "Spouse":
+    # locate the Spouse column by name (create it at the end if absent); reset it
+    if "Spouse" in header:
+        SIDX = header.index("Spouse")
+    else:
+        SIDX = len(header)
         header.append("Spouse")
         for r in rows[1:]:
             r.append("")
-    else:
-        for r in rows[1:]:
-            r[-1] = ""
+    for r in rows[1:]:
+        while len(r) <= SIDX:
+            r.append("")
+        r[SIDX] = ""
 
     # split data rows into plot groups on separator rows
     groups, cur = [], []
@@ -126,8 +131,8 @@ def main():
         for score, m, f in edges:
             if id(m) in taken or id(f) in taken:
                 continue
-            m[-1] = label(f)
-            f[-1] = label(m)
+            m[SIDX] = f[IDC]
+            f[SIDX] = m[IDC]
             taken.add(id(m)); taken.add(id(f))
             predicted += 1
 
@@ -135,7 +140,7 @@ def main():
         csv.writer(f).writerows(rows)
 
     persons = sum(1 for r in rows[1:] if is_person(r))
-    withsp = sum(1 for r in rows[1:] if is_person(r) and r[-1])
+    withsp = sum(1 for r in rows[1:] if is_person(r) and r[SIDX])
     print(f"Predicted {predicted} couples -> {withsp}/{persons} person rows have a spouse.")
 
 if __name__ == "__main__":

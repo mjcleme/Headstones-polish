@@ -118,7 +118,7 @@ Fix Later, Władisław Talaga, Jan Magdziak, Agata Magdziak, Helena Kolczak.
 
 ## 7. `Spouse` column (`predict_spouse.py`)
 
-Predicts a married partner and stores the partner's `Given Surname`.
+Predicts a married partner and stores the partner's **ID** (its `ID`-column value).
 
 **Rules (Polish headstone conventions):**
 1. **Same plot.** People are grouped by the transcribe/separator rows; consecutive person
@@ -182,9 +182,9 @@ blank otherwise.
   aniołów` ("joined the group of angels"). *(These engraved-text clues are not available as
   structured fields in this dataset; listed for manual review / future OCR work.)*
 
-**Report.** **157 children** assigned a mother; **0** age-rule violations; mother-age at
-birth 16–42, avg 29; 10 of the children have diminutive names. **8 people are both a child
-and a mother** → 3-generation plots correctly reconstructed (e.g. Helena → Irena →
+**Report.** **159 children** assigned a mother; **0** age-rule violations; mother-age at
+birth 16–42, avg 29; 10 of the children have diminutive names. Several people are both a
+child and a mother → 3-generation plots correctly reconstructed (e.g. Helena → Irena →
 Krzysztof Kubas). Ludwik Skoczek (1903) ← Salomea (1865): the 38-yr gap the spouse logic
 rejected is correctly caught here as mother/son.
 **Limitation:** a woman listed under her married surname *without* a maiden-name marker

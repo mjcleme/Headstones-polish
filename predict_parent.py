@@ -49,13 +49,18 @@ def label(r):
 def main():
     rows = list(csv.reader(open(SRC, newline="", encoding=ENC)))
     header = rows[0]
-    if header[-1] != "Mother":
+    # locate the Mother column by name (create it at the end if absent); reset it
+    if "Mother" in header:
+        MIDX = header.index("Mother")
+    else:
+        MIDX = len(header)
         header.append("Mother")
         for r in rows[1:]:
             r.append("")
-    else:
-        for r in rows[1:]:
-            r[-1] = ""
+    for r in rows[1:]:
+        while len(r) <= MIDX:
+            r.append("")
+        r[MIDX] = ""
 
     groups, cur = [], []
     for r in rows[1:]:
@@ -83,7 +88,7 @@ def main():
             for mom in females:
                 if mom is child:
                     continue
-                if child[SPOUSE] and child[SPOUSE] == label(mom):
+                if child[SPOUSE] and child[SPOUSE] == mom[IDC]:
                     continue  # her spouse, not her child
                 mby = birth_year(mom[BIRTH])
                 age = cby - mby
@@ -93,7 +98,7 @@ def main():
             if cands:
                 cands.sort(key=lambda c: (c[0], c[1]))
                 mom = cands[0][2]
-                child[-1] = mom[IDC]
+                child[MIDX] = mom[IDC]
                 assigned += 1
                 if is_diminutive(child[GIVEN]):
                     dim_assigned += 1
